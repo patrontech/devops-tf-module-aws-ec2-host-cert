@@ -6,7 +6,7 @@ INSTANCE_ID="`curl --silent http://instance-data/latest/meta-data/instance-id`"
 TAG_NAME="${ec2_fqdn_tag}"
 FQDN="`aws ec2 describe-tags --filters \"Name=resource-id,Values=$INSTANCE_ID\" --region $REGION \"Name=key,Values=$TAG_NAME\" | jq -r .Tags[0].Value`"
 HOSTNAME="`awk -F. '{print $1}' <<< $FQDN`"
-aws secretsmanager get-secret-value --region "$REGION" --secret-id ${aws_secret_id} --query 'SecretString' | jq -r .ca_private_key``" > /tmp/ssh_ca
+aws secretsmanager get-secret-value --region "$REGION" --secret-id ${aws_secret_id} | jq -r .SecretString > /tmp/ssh_ca
 chmod 0600 /tmp/ssh_ca
 ssh-keygen -h -s /tmp/ssh_ca -n "$HOSTNAME","$FQDN" -I "ecdsa_ssh_id" /etc/ssh/ssh_host_ecdsa_key.pub
 ssh-keygen -h -s /tmp/ssh_ca -n "$HOSTNAME","$FQDN" -I "ed25519_ssh_id" /etc/ssh/ssh_host_ed25519_key.pub
